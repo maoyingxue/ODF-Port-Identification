@@ -15,14 +15,15 @@ def find_most(al):  # 找列表的众数
         return i[0]
 
 class Classification():
-    def __init__(self, data_path):   #加载训练数据
+    def __init__(self, gallery_path, feature="hist"):   #加载训练数据
         """
         :param data: 训练数据
         """
-        print("gallery path:", data_path)
-        data = open(data_path + "\\complete_dbase.txt", 'rb')
+        print("gallery path:", gallery_path)
+        data = open(gallery_path + "\\complete_dbase.txt", 'rb')
         data = pickle.load(data)
         self.traindata_feature = data
+        self.feature = feature
 
     def knn(self, testdata, k):
         """
@@ -30,7 +31,8 @@ class Classification():
         :param k: 近邻
         :return: 分类结果
         """
-        test_feature = calFeature.createHistFeature(testdata)
+        if self.feature == "hist":
+            test_feature = calFeature.createHistFeature(testdata)
         nparray = np.array([[]])
         for i, feat in enumerate(self.traindata_feature):
             if (i == 0):

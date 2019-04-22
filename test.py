@@ -18,7 +18,6 @@ def get_high(points_list):
                    (points_list[1][1] - points_list[2][1]) * (points_list[1][1] - points_list[2][1]))
     return int(max(h1, h2))
 
-
 def get_width(points_list):
     """
     # 用于计算透射变换的宽
@@ -29,7 +28,6 @@ def get_width(points_list):
     w2 = math.sqrt((points_list[2][0] - points_list[3][0]) * (points_list[2][0] - points_list[3][0]) +
                    (points_list[2][1] - points_list[3][1]) * (points_list[2][1] - points_list[3][1]))
     return int(max(w1, w2))
-
 
 def transform(image, points):
     """
@@ -43,7 +41,6 @@ def transform(image, points):
     image_change = cv2.warpPerspective(image, p, (get_width(points), get_high(points)))
     return image_change
 
-
 def drawPoints(event, x, y, flags, param):
     """
     # 手工标定四个顶点，参数为默认
@@ -54,7 +51,6 @@ def drawPoints(event, x, y, flags, param):
         cv2.waitKey(0)
         points_hand.append(np.array([x, y]))
         print(points_hand)
-
 
 def predictOdfType(image, method="input"):
     """
@@ -75,7 +71,6 @@ def predictOdfType(image, method="input"):
         odf_type = str(input("请输入机架的类型："))
 
     return odf_type
-
 
 def calculateNum(image, method="input"):
     """
@@ -100,7 +95,6 @@ def calculateNum(image, method="input"):
 
     return row, col
 
-
 def getPoints(image, method="hand"):
     """
     # 得到机架的四个顶点
@@ -120,7 +114,7 @@ def getPoints(image, method="hand"):
         cv2.destroyAllWindows()
         return points_hand
 
-def predictPortType(image_change, x_num, y_num, data_path, method="knn", if_show=True):
+def predictPortType(image_change, x_num, y_num, gallery_path, method="knn", if_show=True):
     """
     # 得到各个端口的分类结果
     :param image_change: 扶正后的图片
@@ -130,7 +124,7 @@ def predictPortType(image_change, x_num, y_num, data_path, method="knn", if_show
     :return: 结果矩阵
     """
     if method == "knn":
-        k = portClassification.Classification(data_path)
+        k = portClassification.Classification(gallery_path)
         split_x = image_change.shape[1] / x_num
         split_y = image_change.shape[0] / y_num
         result = np.zeros((y_num, x_num))
@@ -246,7 +240,7 @@ if __name__ == '__main__':
         y_num, x_num = calculateNum(image)
 
         # 预测端口的分类结果
-        print("开始预测，请耐心等待！！！")
+        print("开始预测，请耐心等待......")
         results = predictPortType(image_change, x_num, y_num, gallery_path)
         print("predict results:")
         print(results)

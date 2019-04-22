@@ -3,7 +3,7 @@ import cv2
 import os
 import pickle
 
-def saveFeature(gallery_path, txt_path):
+def saveFeature(gallery_path, txt_path, method="hist"):
     """
     # 将gallery中的端口进行特征提取并保存
     :param gallery_path: 图片路径
@@ -19,8 +19,9 @@ def saveFeature(gallery_path, txt_path):
         img = cv2.imread(gallery_path + "\\" + image)
         image_name = os.path.splitext(image)[0]
         data = []
-        data.append(calFeature.createHistFeature(img))
-        data.append(int(image_name[-1]))
+        if method == "hist":
+            data.append(calFeature.createHistFeature(img))
+            data.append(int(image_name[-1]))
         feature.append(data)
     fp = open(txt_path, 'wb')
     pickle.dump(feature, fp)
