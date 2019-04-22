@@ -5,11 +5,11 @@ from utils import segment
 import os
 import xlrd
 import math
-
+import time
 
 def get_high(points_list):
     """
-    # 用于计算仿射变换的高
+    # 用于计算透射变换的高
     :param points_list: 四个顶点的列表
     """
     h1 = math.sqrt((points_list[0][0] - points_list[3][0]) * (points_list[0][0] - points_list[3][0]) +
@@ -21,7 +21,7 @@ def get_high(points_list):
 
 def get_width(points_list):
     """
-    # 用于计算仿射变换的宽
+    # 用于计算透射变换的宽
     :param points_list: 四个顶点的列表
     """
     w1 = math.sqrt((points_list[0][0] - points_list[1][0]) * (points_list[0][0] - points_list[1][0]) +
@@ -135,11 +135,18 @@ def predictPortType(image_change, x_num, y_num, data_path, method="knn", if_show
         split_x = image_change.shape[1] / x_num
         split_y = image_change.shape[0] / y_num
         result = np.zeros((y_num, x_num))
+        c = 0
         for i in range(y_num):
             for j in range(x_num):
+                c += 1
                 img = image_change[round(i * split_y): round((i + 1) * split_y),
                       round(j * split_x): round((j + 1) * split_x)]
+
+                start = time.clock()
                 result[i, j] = k.knn(img, 4)
+                elapsed = (time.clock() - start)
+                print("已预测", c, "个端口, 用时：", elapsed)
+
                 if if_show:
                     tl = (round(j * split_x), round(i * split_y))
                     br = (round((j + 1) * split_x), round((i + 1) * split_y))
@@ -198,10 +205,9 @@ def calculateAccuracy(results, excel_path, flag=False):
     else:
         return 0
 
-
 if __name__ == '__main__':
 
-    img_path = "origin_data\\image"
+    img_path = "origin_data\\test"
     excel_path = "origin_data\\label"
     images = os.listdir(img_path)
     n = 0

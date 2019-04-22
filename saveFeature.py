@@ -1,29 +1,7 @@
-import numpy as np
+from utils import calFeature
 import cv2
 import os
 import pickle
-
-def createHistFeature(grid, small_grid=3):
-    """
-    # 生成颜色直方图特征
-    :param img: 数据
-    :return: 数据的特征
-    """
-    hist_mask = np.array([])
-    colnum = int(grid.shape[1] / small_grid)
-    rownum = int(grid.shape[0] / small_grid)
-    for i in range(small_grid):
-        for j in range(small_grid):
-            image = grid[i * colnum:(i + 1) * colnum, j * rownum:(j + 1) * rownum, :]
-            hist_mask0 = cv2.calcHist([image], [0], None, [16], [0, 255])
-            hist_mask1 = cv2.calcHist([image], [1], None, [16], [0, 255])
-            hist_mask2 = cv2.calcHist([image], [2], None, [16], [0, 255])
-            hist_mask_small = np.concatenate((hist_mask0, hist_mask1, hist_mask2), axis=0)
-            if (len(hist_mask) == 0):
-                hist_mask = hist_mask_small
-            else:
-                hist_mask = np.concatenate((hist_mask, hist_mask_small), axis=0)
-    return hist_mask
 
 def saveFeature(gallery_path, txt_path):
     """
@@ -41,7 +19,7 @@ def saveFeature(gallery_path, txt_path):
         img = cv2.imread(gallery_path + "\\" + image)
         image_name = os.path.splitext(image)[0]
         data = []
-        data.append(createHistFeature(img))
+        data.append(calFeature.createHistFeature(img))
         data.append(int(image_name[-1]))
         feature.append(data)
     fp = open(txt_path, 'wb')

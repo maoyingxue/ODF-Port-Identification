@@ -6,7 +6,7 @@ import numpy as np
 
 def get_high(points_list):
     """
-    # 用于计算仿射变换的高
+    # 用于计算透射变换的高
     :param points_list: 四个顶点的列表
     """
     h1 = math.sqrt((points_list[0][0] - points_list[3][0]) * (points_list[0][0] - points_list[3][0]) +
@@ -17,7 +17,7 @@ def get_high(points_list):
 
 def get_width(points_list):
     """
-    # 用于计算仿射变换的宽
+    # 用于计算透射变换的宽
     :param points_list: 四个顶点的列表
     """
     w1 = math.sqrt((points_list[0][0] - points_list[1][0]) * (points_list[0][0] - points_list[1][0]) +
@@ -82,7 +82,7 @@ def findPoints(event, x, y, flags, param):
         cv2.imshow("grid", correct_img_copy)
 
 if __name__ == '__main__':
-    img_path = "origin_data\\image"
+    img_path = "origin_data\\wn"
 
     images = os.listdir(img_path)
     n = 0
@@ -145,4 +145,3 @@ if __name__ == '__main__':
         cv2.setMouseCallback('origin', findPoints)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-
