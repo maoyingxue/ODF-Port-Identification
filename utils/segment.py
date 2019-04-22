@@ -1,9 +1,6 @@
 import cv2
 import numpy as np
-
-import random
 from collections import Counter
-
 
 def find_most(al):  # 找列表的众数
     c = Counter(al)
@@ -15,6 +12,7 @@ def find_most(al):  # 找列表的众数
     ii = c.most_common(nmax)
     for i in ii:
         return i[0]
+
 def Segmentation(img):
     """
         :param img: 找到四个点的图片

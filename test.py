@@ -1,4 +1,4 @@
-from port_classification import KNN
+from port_classification import portClassification
 import cv2
 import numpy as np
 from utils import segment
@@ -120,7 +120,6 @@ def getPoints(image, method="hand"):
         cv2.destroyAllWindows()
         return points_hand
 
-
 def predictPortType(image_change, x_num, y_num, data_path, method="knn", if_show=True):
     """
     # 得到各个端口的分类结果
@@ -131,7 +130,7 @@ def predictPortType(image_change, x_num, y_num, data_path, method="knn", if_show
     :return: 结果矩阵
     """
     if method == "knn":
-        k = KNN.Knn(data_path)
+        k = portClassification.Classification(data_path)
         split_x = image_change.shape[1] / x_num
         split_y = image_change.shape[0] / y_num
         result = np.zeros((y_num, x_num))
@@ -158,7 +157,6 @@ def predictPortType(image_change, x_num, y_num, data_path, method="knn", if_show
             cv2.waitKey(0)
             cv2.destroyAllWindows()
         return result
-
 
 def calculateAccuracy(results, excel_path, flag=False):
     """

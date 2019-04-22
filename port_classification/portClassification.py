@@ -14,7 +14,7 @@ def find_most(al):  # 找列表的众数
     for i in ii:
         return i[0]
 
-class Knn():
+class Classification():
     def __init__(self, data_path):   #加载训练数据
         """
         :param data: 训练数据
