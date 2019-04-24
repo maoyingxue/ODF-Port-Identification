@@ -61,7 +61,7 @@ def predictOdfType(image, method="input"):
     """
     # 固定值
     if method == "hand":
-        odf_type = "2"
+        odf_type = "3"
 
     # 调用分类算法计算
     # elif method == "algorithm":
@@ -81,7 +81,7 @@ def calculateNum(image, method="input"):
     """
     # 固定值
     if method == "hand":
-        row = 6
+        row = 24
         col = 12
 
     # 调用segment.py计算
@@ -114,7 +114,7 @@ def getPoints(image, method="hand"):
         cv2.destroyAllWindows()
         return points_hand
 
-def predictPortType(image_change, x_num, y_num, gallery_path, method="knn", if_show=True):
+def predictPortType(image_change, x_num, y_num, gallery_path, method="knn", feature="hist", if_show=True):
     """
     # 得到各个端口的分类结果
     :param image_change: 扶正后的图片
@@ -123,34 +123,38 @@ def predictPortType(image_change, x_num, y_num, gallery_path, method="knn", if_s
     :param if_show: 是否可视化
     :return: 结果矩阵
     """
-    if method == "knn":
-        k = portClassification.Classification(gallery_path)
-        split_x = image_change.shape[1] / x_num
-        split_y = image_change.shape[0] / y_num
-        result = np.zeros((y_num, x_num))
-        c = 0
-        for i in range(y_num):
-            for j in range(x_num):
-                c += 1
-                img = image_change[round(i * split_y): round((i + 1) * split_y),
-                      round(j * split_x): round((j + 1) * split_x)]
 
-                start = time.clock()
+    k = portClassification.Classification(gallery_path, method, feature)
+    split_x = image_change.shape[1] / x_num
+    split_y = image_change.shape[0] / y_num
+    result = np.zeros((y_num, x_num))
+    c = 0
+    for i in range(y_num):
+        for j in range(x_num):
+            c += 1
+            img = image_change[round(i * split_y): round((i + 1) * split_y),
+                  round(j * split_x): round((j + 1) * split_x)]
+
+            start = time.clock()
+            if method == "knn":
                 result[i, j] = k.knn(img, 4)
-                elapsed = (time.clock() - start)
-                print("已预测", c, "个端口, 用时：", elapsed)
-
-                if if_show:
-                    tl = (round(j * split_x), round(i * split_y))
-                    br = (round((j + 1) * split_x), round((i + 1) * split_y))
-                    cv2.rectangle(image_change, tl, br, (178, 34, 34), 1)
-                    cv2.putText(image_change, str(int(result[i, j])), (int(tl[0]), int(tl[1] + split_x)),
-                                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1)
-        if if_show:
-            cv2.imshow("dsa", image_change)
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
-        return result
+            elif method == "svm":
+                result[i, j] = k.svm(img)
+            elif method == "knn2":
+                result[i, j] = k.knn2(img)
+            elapsed = (time.clock() - start)
+            # print("已预测", c, "个端口, 用时：", elapsed)
+            if if_show:
+                tl = (round(j * split_x), round(i * split_y))
+                br = (round((j + 1) * split_x), round((i + 1) * split_y))
+                cv2.rectangle(image_change, tl, br, (178, 34, 34), 1)
+                cv2.putText(image_change, str(int(result[i, j])), (int(tl[0]), int(tl[1] + split_x)),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1)
+    if if_show:
+        cv2.imshow("dsa", image_change)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+    return result
 
 def calculateAccuracy(results, excel_path, flag=False):
     """
@@ -201,6 +205,9 @@ if __name__ == '__main__':
 
     img_path = "origin_data\\test"
     excel_path = "origin_data\\label"
+    port_cls_method = "knn2"
+    feature_method = "hist"
+
     images = os.listdir(img_path)
     n = 0
     accuracy_list = []
@@ -226,7 +233,7 @@ if __name__ == '__main__':
         img = cv2.resize(img, (high, width))
 
         # 预测机架的类型
-        odf_tpye = predictOdfType(img)
+        odf_tpye = predictOdfType(img, "input")
         print("odf type:", odf_tpye)
         gallery_path = "gallery" + "\\" + "type" + odf_tpye
 
@@ -237,11 +244,11 @@ if __name__ == '__main__':
         image_change = transform(img, points)
 
         # 得到机架的行列信息
-        y_num, x_num = calculateNum(image)
+        y_num, x_num = calculateNum(image, "input")
 
         # 预测端口的分类结果
         print("开始预测，请耐心等待......")
-        results = predictPortType(image_change, x_num, y_num, gallery_path)
+        results = predictPortType(image_change, x_num, y_num, gallery_path, port_cls_method, feature_method)
         print("predict results:")
         print(results)
 
@@ -249,6 +256,8 @@ if __name__ == '__main__':
         excel_file = excel_path + '\\' + name + '.xlsx'
         accuracy = calculateAccuracy(results, excel_file, True)
         accuracy_list.append(accuracy)
+        print("端口分类算法：", port_cls_method)
+        print("特征提取方法：", feature_method)
         print("准确率：{}".format(accuracy))
 
     print("平均准确率：{}".format(np.mean(accuracy_list)))

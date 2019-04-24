@@ -8,6 +8,7 @@ def saveFeature(gallery_path, txt_path, method="hist"):
     # 将gallery中的端口进行特征提取并保存
     :param gallery_path: 图片路径
     :param txt_path: 保存路径
+    :param method: 提取特征的方式
     """
     print(gallery_path)
     images = os.listdir(gallery_path)

@@ -4,7 +4,8 @@ import cv2
 def createHistFeature(grid, small_grid=3):
     """
     # 生成颜色直方图特征
-    :param img: 数据
+    :param grid: 数据
+    :param small_grid: 细分的网格数
     :return: 数据的特征
     """
     hist_mask = np.array([])
