@@ -6,7 +6,8 @@ import os
 import xlrd
 import math
 import time
-
+from classify import odfclassify
+from get_points import type1,type2,type3,type4
 def get_high(points_list):
     """
     # 用于计算透射变换的高
@@ -64,8 +65,8 @@ def predictOdfType(image, method="input"):
         odf_type = "3"
 
     # 调用分类算法计算
-    # elif method == "algorithm":
-
+    elif method == "algorithm":
+        odf_type=odfclassify(image)
     # 人工输入
     elif method == "input":
         odf_type = str(input("请输入机架的类型："))
@@ -95,7 +96,7 @@ def calculateNum(image, method="input"):
 
     return row, col
 
-def getPoints(image, method="hand"):
+def getPoints(image,odf_type, method="hand"):
     """
     # 得到机架的四个顶点
     :param image: 原始图片
@@ -112,6 +113,16 @@ def getPoints(image, method="hand"):
         cv2.setMouseCallback('origin', drawPoints)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+        return points_hand
+    if method=='auto':
+        if odf_type=='1':
+            points_hand=type1.getpoint(image)
+        elif odf_type=='2':
+            points_hand=type2.getpoint(image,'res/type2_6.txt')
+        elif odf_type=='3':
+            points_hand=type3.getpoint(image)
+        elif odf_type=='4':
+            points_hand=type4.getpoint(image)
         return points_hand
 
 def predictPortType(image_change, x_num, y_num, gallery_path, method="knn", feature="hist", if_show=True):
@@ -238,7 +249,7 @@ if __name__ == '__main__':
         gallery_path = "gallery" + "\\" + "type" + odf_tpye
 
         # 得到机架的四个顶点
-        points = getPoints(img)
+        points = getPoints(img,odf_tpye)
 
         # 图像扶正
         image_change = transform(img, points)
