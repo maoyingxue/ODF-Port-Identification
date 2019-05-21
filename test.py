@@ -68,6 +68,7 @@ def predictOdfType(image, method="input"):
     # 调用分类算法计算
     elif method == "algorithm":
         odf_type = str(classify.odfclassify(image))
+
     # 人工输入
     elif method == "input":
         odf_type = str(input("请输入机架的类型："))
@@ -101,6 +102,7 @@ def getPoints(image, odf_type, method="hand"):
     """
     # 得到机架的四个顶点
     :param image: 原始图片
+    :param odf_type：机架的类型
     :param method: 计算方法
     :return: 四个顶点
     """
@@ -249,18 +251,23 @@ if __name__ == '__main__':
         img = cv2.resize(img, (high, width))
 
         # 预测机架的类型
-        odf_type = predictOdfType(img, "algorithm")
+        # odf_type = predictOdfType(img, "algorithm")
+        odf_type = predictOdfType(img, "input")
         print("odf type:", odf_type)
         gallery_path = "gallery" + "/" + "type" + odf_type
 
         # 得到机架的四个顶点
-        points = getPoints(img, odf_type, 'auto')
+        # points = getPoints(img, odf_type, 'auto')
+        points = getPoints(img, odf_type, 'hand')
 
         # 图像扶正
         image_change = transform(img, points)
 
         # 得到机架的行列信息
-        y_num, x_num = calculateNum(image, "input")
+        # y_num, x_num = calculateNum(image_change, "segment")
+        y_num, x_num = calculateNum(image_change, "input")
+        print("row:", y_num)
+        print("col:", x_num)
 
         # 预测端口的分类结果
         print("开始预测，请耐心等待......")
