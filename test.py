@@ -1,4 +1,6 @@
 from port_classification import portClassification
+from odf_classificaiton import classify
+from get_points import type1, type2, type3, type4
 import cv2
 import numpy as np
 from utils import segment
@@ -64,8 +66,8 @@ def predictOdfType(image, method="input"):
         odf_type = "3"
 
     # 调用分类算法计算
-    # elif method == "algorithm":
-
+    elif method == "algorithm":
+        odf_type = str(classify.odfclassify(image))
     # 人工输入
     elif method == "input":
         odf_type = str(input("请输入机架的类型："))
@@ -95,7 +97,7 @@ def calculateNum(image, method="input"):
 
     return row, col
 
-def getPoints(image, method="hand"):
+def getPoints(image, odf_type, method="hand"):
     """
     # 得到机架的四个顶点
     :param image: 原始图片
@@ -112,6 +114,20 @@ def getPoints(image, method="hand"):
         cv2.setMouseCallback('origin', drawPoints)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+        return points_hand
+
+    if method == 'auto':
+        if odf_type == '1':
+            points_hand = type1.getpoint(image)
+        elif odf_type == '2':
+            points_hand = type2.getpoint(image, 'res/type2_6.txt')
+        elif odf_type == '3':
+            points_hand = type3.getpoint(image)
+        elif odf_type == '4':
+            points_hand = type4.getpoint(image)
+        else:
+            print("该算法还未更新！")
+            points_hand = []
         return points_hand
 
 def predictPortType(image_change, x_num, y_num, gallery_path, method="knn", feature="hist", if_show=True):
@@ -203,9 +219,9 @@ def calculateAccuracy(results, excel_path, flag=False):
 
 if __name__ == '__main__':
 
-    img_path = "origin_data\\test"
-    excel_path = "origin_data\\label"
-    port_cls_method = "knn2"
+    img_path = "origin_data/test"
+    excel_path = "origin_data/label"
+    port_cls_method = "knn"
     feature_method = "hist"
 
     images = os.listdir(img_path)
@@ -220,7 +236,7 @@ if __name__ == '__main__':
         name = os.path.splitext(image)[0]
         print(name)
 
-        img = cv2.imread(img_path + '\\' + image)
+        img = cv2.imread(img_path + '/' + image)
 
         # 图片缩放
         if (min(img.shape[0], img.shape[1]) > 3000):
@@ -233,12 +249,12 @@ if __name__ == '__main__':
         img = cv2.resize(img, (high, width))
 
         # 预测机架的类型
-        odf_tpye = predictOdfType(img, "input")
-        print("odf type:", odf_tpye)
-        gallery_path = "gallery" + "\\" + "type" + odf_tpye
+        odf_type = predictOdfType(img, "algorithm")
+        print("odf type:", odf_type)
+        gallery_path = "gallery" + "/" + "type" + odf_type
 
         # 得到机架的四个顶点
-        points = getPoints(img)
+        points = getPoints(img, odf_type, 'auto')
 
         # 图像扶正
         image_change = transform(img, points)
@@ -253,7 +269,7 @@ if __name__ == '__main__':
         print(results)
 
         # 测试准确率
-        excel_file = excel_path + '\\' + name + '.xlsx'
+        excel_file = excel_path + '/' + name + '.xlsx'
         accuracy = calculateAccuracy(results, excel_file, True)
         accuracy_list.append(accuracy)
         print("端口分类算法：", port_cls_method)

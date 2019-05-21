@@ -82,7 +82,7 @@ def findPoints(event, x, y, flags, param):
         cv2.imshow("grid", correct_img_copy)
 
 if __name__ == '__main__':
-    img_path = "origin_data\\wn"
+    img_path = "origin_data\\sp"
 
     images = os.listdir(img_path)
     n = 0
