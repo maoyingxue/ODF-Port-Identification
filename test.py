@@ -268,6 +268,7 @@ if __name__ == '__main__':
         y_num, x_num = calculateNum(image_change, "input")
         print("row:", y_num)
         print("col:", x_num)
+        
 
         # 预测端口的分类结果
         print("开始预测，请耐心等待......")
